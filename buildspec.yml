@@ -66,12 +66,6 @@ phases:
               app: $_PROJECT_NAME
           spec:
             replicas: 1
-            minReadySeconds: 180
-            strategy:
-              type: RollingUpdate
-              rollingUpdate:
-                maxSurge: 1
-                maxUnavailable: 0
             selector:
               matchLabels:
                 app: $_PROJECT_NAME
@@ -81,7 +75,7 @@ phases:
                   app: $_PROJECT_NAME
               spec:
                 containers:
-                  - name: $_PROJECT_NAME
+                  - name: $IMAGE_REPO_NAME
                     image: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$_PROJECT_NAME:$CODEBUILD_RESOLVED_SOURCE_VERSION
                     ports:
                       - containerPort: 8080
@@ -92,28 +86,28 @@ phases:
                         cpu: 200m
                     volumeMounts:
                       - mountPath: "/mnt/aws"
-                        name: volume
+                        name: volume                    
                     readinessProbe:
                       tcpSocket:
                         port: 8080
-                      initialDelaySeconds: 120
+                      initialDelaySeconds: 15
                       periodSeconds: 20
                     livenessProbe:
                       tcpSocket:
                         port: 8080
                       initialDelaySeconds: 20
-                      periodSeconds: 30
+                      periodSeconds: 30    
                 volumes:
                   - name: volume
                     persistentVolumeClaim:
-                      claimName: aws-efs         
-          EOF  
+                      claimName: aws-efs  
+          EOF
       - |
           cat <<EOF | kubectl apply -f -
           apiVersion: autoscaling/v1
           kind: HorizontalPodAutoscaler
           metadata:
-            name: skcchpa_point
+            name: skcchpa-point
             namespace: teamc
           spec:
             scaleTargetRef:
@@ -122,7 +116,7 @@ phases:
               name: $_PROJECT_NAME
             minReplicas: 1
             maxReplicas: 3
-            targetCPUUtilizationPercentage: 20
+            targetCPUUtilizationPercentage: 50
             #metrics:
             #- type: Resource
             #  resource:
@@ -130,7 +124,27 @@ phases:
             #    target:
             #      type: Utilization
             #      averageUtilization: 10
-        EOF   
+          EOF
+      - |  
+          cat <<EOF | kubectl apply -f -
+          apiVersion: networking.istio.io/v1alpha3
+          kind: DestinationRule
+          metadata:
+            name: dr-point
+            namespace: teamc
+          spec:
+            host: $_PROJECT_NAME
+            trafficPolicy:
+              connectionPool:
+                http:
+                  http1MaxPendingRequests: 1
+                  maxRequestsPerConnection: 1
+              outlierDetection:
+                interval: 1s
+                consecutiveErrors: 1
+                baseEjectionTime: 10m
+                maxEjectionPercent: 100
+          EOF
 cache:
   paths:
     - '/root/.m2/**/*'
