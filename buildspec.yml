@@ -107,7 +107,7 @@ phases:
                   - name: volume
                     persistentVolumeClaim:
                       claimName: aws-efs         
-          
+         EOF 
       - |
           cat <<EOF | kubectl apply -f -
           apiVersion: autoscaling/v1
@@ -130,7 +130,7 @@ phases:
             #    target:
             #      type: Utilization
             #      averageUtilization: 10
-
+        EOF
      - |  
           cat <<EOF | kubectl apply -f -
           apiVersion: networking.istio.io/v1alpha3
