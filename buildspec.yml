@@ -65,7 +65,7 @@ phases:
             labels:
               app: $IMAGE_REPO_NAME
           spec:
-            replicas: 1
+            replicas: 2
             minReadySeconds: 10
             strategy:
               type: RollingUpdate
@@ -120,8 +120,8 @@ phases:
               apiVersion: apps/v1
               kind: Deployment
               name: $IMAGE_REPO_NAME
-            minReplicas: 1
-            maxReplicas: 3
+            minReplicas: 2
+            maxReplicas: 4
             targetCPUUtilizationPercentage: 10
             #metrics:
             #- type: Resource
