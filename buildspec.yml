@@ -132,25 +132,25 @@ phases:
             #      averageUtilization: 10
          EOF
      - |  
-          cat <<EOF | kubectl apply -f -
-          apiVersion: networking.istio.io/v1alpha3
-          kind: DestinationRule
-          metadata:
-            name: dr-point
-            namespace: teamc
-          spec:
-            host: $_PROJECT_NAME
-            trafficPolicy:
-              connectionPool:
-                http:
-                  http1MaxPendingRequests: 1
-                  maxRequestsPerConnection: 1
-              outlierDetection:
-                interval: 1s
-                consecutiveErrors: 1
-                baseEjectionTime: 10m
-                maxEjectionPercent: 100
-          EOF     
+         cat <<EOF | kubectl apply -f -
+         apiVersion: networking.istio.io/v1alpha3
+         kind: DestinationRule
+         metadata:
+           name: dr-point
+           namespace: teamc
+         spec:
+           host: $_PROJECT_NAME
+           trafficPolicy:
+             connectionPool:
+               http:
+                 http1MaxPendingRequests: 1
+                 maxRequestsPerConnection: 1
+             outlierDetection:
+               interval: 1s
+               consecutiveErrors: 1
+               baseEjectionTime: 10m
+               maxEjectionPercent: 100
+         EOF     
 
 cache:
   paths:
