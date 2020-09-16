@@ -102,7 +102,7 @@ phases:
                     persistentVolumeClaim:
                       claimName: aws-efs  
           EOF
-      - |
+      - | #
           cat <<EOF | kubectl apply -f -
           apiVersion: autoscaling/v1
           kind: HorizontalPodAutoscaler
